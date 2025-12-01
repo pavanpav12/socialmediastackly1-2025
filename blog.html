@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stackly Blog + Navbar + Footer</title>
+
+<style>
+/* ====================== RESET ====================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+}
+
+body{
+  background:radial-gradient(circle at top,#5b2bff,#050816 70%);
+  color:#e5e7eb;
+  min-height:100vh;
+  padding:20px 14px;
+  margin-top:80px;
+  overflow-x:hidden;
+}
+
+
+
+/* ====================== LOADER ====================== */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: indianred;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeOut 1.2s ease 1s forwards;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+#loader p {
+  color: #fff;
+  margin-top: 15px;
+  font-size: 1.2rem;
+}
+
+@keyframes fadeOut { to { opacity:0; visibility:hidden; } }
+@keyframes pulse {
+  0% { transform:translate(-50%, -50%) scale(0.9); opacity:0.7; }
+  70%{ transform:translate(-50%, -50%) scale(1.3); opacity:0.2; }
+  100%{ transform:translate(-50%, -50%) scale(0.9); opacity:0.7; }
+}
+
+
+
+/* ====================== NAVBAR ====================== */
+.navbar{
+  width:100%;
+  background:linear-gradient(90deg, #4b2cff, #885cff, #c56ffd);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:9999;
+  box-shadow:0 4px 25px rgba(0,0,0,0.25);
+}
+
+.logo-area img{
+  height:45px;
+}
+
+/* MENU */
+.nav-menu{
+  display:flex;
+  list-style:none;
+  gap:25px;
+}
+
+.nav-menu li a{
+  color:#fff;
+  text-decoration:none;
+  font-size:16px;
+  padding:8px 12px;
+  border-radius:6px;
+}
+.nav-menu li a:hover{
+  background:#ffffff25;
+  box-shadow:0 0 10px #ffffff60;
+}
+
+/* DROPDOWN */
+.dropdown{ position:relative; }
+.dropdown-menu{
+  position:absolute;
+  left:0; top:40px;
+  background:#0b2447;
+  width:160px;
+  border-radius:10px;
+  padding:10px 0;
+  display:none;
+}
+.dropdown.open .dropdown-menu{
+  display:block;
+}
+
+/* HAMBURGER */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+}
+.hamburger span{
+  width:28px;
+  height:3px;
+  background:white;
+  border-radius:4px;
+}
+
+
+/* MOBILE NAV */
+@media(max-width:768px){
+  .hamburger{ display:flex; }
+
+  .nav-menu{
+    position:fixed;
+    right:-100%;
+    top:70px;
+    width:250px;
+    height:100vh;
+    background:#0b2447;
+    flex-direction:column;
+    padding:20px;
+    transition:0.4s;
+  }
+
+  .nav-menu.active{ right:0; }
+
+  .dropdown-menu{
+    position:relative;
+    width:100%;
+  }
+
+  .nav-menu li a{
+    width:100%;
+    font-size:18px;
+    padding:12px;
+  }
+}
+
+
+
+/* ====================== BLOG WRAPPER ====================== */
+.blog-wrapper{
+  width:100%;
+  max-width:820px;
+  background:rgba(15,23,42,0.95);
+  border-radius:22px;
+  border:1px solid rgba(148,163,184,0.3);
+  margin:auto;
+  margin-top:40px;
+  margin-bottom:50px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.55);
+}
+
+.blog-header{
+  padding:22px 18px 12px;
+}
+
+.blog-category{
+  background:rgba(129,140,248,0.15);
+  padding:4px 12px;
+  font-size:11px;
+  border-radius:20px;
+}
+
+.blog-title{
+  font-size:26px;
+  font-weight:700;
+  margin-top:12px;
+}
+
+.blog-subtitle{
+  margin:10px 0;
+  opacity:.8;
+}
+
+.blog-meta{
+  display:flex;
+  gap:14px;
+  margin-top:14px;
+  align-items:center;
+}
+
+.meta-avatar img{
+  width:32px; height:32px;
+  border-radius:50%;
+}
+
+.blog-cover{
+  width:100%;
+  height:250px;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:18px;
+}
+.blog-cover img{
+  width:100%; height:100%;
+  object-fit:cover;
+  transition:0.8s;
+}
+.blog-cover:hover img{
+  transform:scale(1.06);
+}
+
+
+/* BLOG CONTENT */
+.blog-content{
+  padding:18px 18px 22px;
+  line-height:1.8;
+  font-size:15px;
+}
+
+.quote{
+  background:#0f172a;
+  padding:16px;
+  border-left:4px solid #6366f1;
+  border-radius:14px;
+  margin:18px 0;
+}
+
+
+/* MOBILE BLOG FIX */
+@media(max-width:480px){
+  .blog-wrapper{ max-width:100%; border-radius:18px; }
+  .blog-title{ font-size:22px; }
+  .blog-cover{ height:170px; }
+}
+
+
+
+/* ====================== FOOTER ====================== */
+/* ================= FOOTER START ================= */
+
+footer{
+ background: linear-gradient(180deg, #1e1e3f, #342e6a, #4e2b8c);
+
+
+  color:#fff;
+  padding:70px 6%;
+  margin-top:80px;
+  position:relative;
+  overflow:hidden;
+  font-family:"Poppins",sans-serif;
+}
+
+/* Soft glow */
+footer::before{
+  content:"";
+  position:absolute;
+  top:-120px;
+  left:0;
+  width:120%;
+  height:220px;
+ 
+}
+
+
+/* GRID LAYOUT FIXED */
+.footer-container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:50px;
+  position:relative;
+  z-index:2;
+}
+
+/* LEFT */
+.footer-left img{
+  height:58px;
+  margin-bottom:12px;
+  object-fit:contain;
+}
+
+.footer-left p{
+  opacity:0.85;
+  margin:12px 0 18px;
+  line-height:1.6;
+  font-size:14px;
+  max-width:280px;
+}
+
+/* SOCIAL ICONS */
+.social-icons{
+  display:flex;
+  gap:14px;
+  margin-top:12px;
+}
+.social-icons a{
+  height:42px;width:42px;
+  border-radius:50%;
+  background:#ffffff20;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:.3s;
+}
+.social-icons a:hover{
+  background:#00eaff;
+  transform:translateY(-6px) scale(1.1);
+}
+.social-icons img{
+  height:20px;width:20px;
+}
+
+/* CENTER LINKS */
+.footer-links h3,
+.footer-contact h3{
+  margin-bottom:16px;
+  font-size:22px;
+  color:#00eaff;
+}
+
+.footer-links a{
+  display:block;
+  text-decoration:none;
+  color:#cbd5e1;
+  margin:6px 0;
+  font-size:15px;
+  transition:.3s;
+}
+.footer-links a:hover{
+  transform:translateX(6px);
+  color:#00eaff;
+}
+
+/* RIGHT CONTACT */
+.footer-contact p{
+  margin:6px 0;
+  opacity:.9;
+  font-size:15px;
+}
+
+/* SUBSCRIBE */
+.subscribe-box{
+  margin-top:16px;
+  display:flex;
+  width:100%;
+  max-width:320px;
+}
+.subscribe-box input{
+  flex:1;
+  padding:12px 14px;
+  background:#ffffff12;
+  border:none;
+  border-radius:6px 0 0 6px;
+  color:white;
+  outline:none;
+}
+.subscribe-box button{
+  padding:12px 20px;
+  background:#00eaff;
+  border:none;
+  color:#001;
+  font-weight:700;
+  border-radius:0 6px 6px 0;
+  cursor:pointer;
+}
+
+/* BOTTOM COPYRIGHT */
+.footer-bottom{
+  text-align:center;
+  margin-top:40px;
+  padding-top:18px;
+  border-top:1px solid #1e293b;
+  opacity:.8;
+  font-size:14px;
+}
+
+/* MOBILE VIEW FIX */
+/* MOBILE VIEW FIX */
+@media(max-width:900px){
+  
+  .footer-container{
+    grid-template-columns:1fr;
+    gap:45px;
+    text-align:center;
+  }
+
+  /* Left section */
+  .footer-left p{
+    margin:auto;
+  }
+
+  .social-icons{
+    justify-content:center;
+  }
+
+  /* QUICK LINKS */
+  .footer-links{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;   /* center block */
+  }
+
+  .footer-links h3{
+    text-align:center;
+    width:100%;
+  }
+
+  .footer-links a{
+    width:100%;
+    max-width:220px;      /* keeps good width */
+    text-align:start;     /* TEXT LEFT */
+    margin:4px 0;
+    padding-left:0;
+    margin-left: 130px;
+  }
+
+  /* Contact section */
+  .footer-contact{
+    text-align:center;
+  }
+
+  /* Subscribe input responsiveness */
+  .subscribe-box{
+    flex-direction:column;
+    max-width:none;
+  }
+  .subscribe-box input{
+    width:100%;
+    border-radius:6px;
+    margin-bottom:10px;
+  }
+  .subscribe-box button{
+    width:100%;
+    border-radius:6px;
+  }
+}
+
+</style>
+
+
+
+<!-- ================= FOOTER END ================= -->
+
+</style>
+</head>
+<body>
+
+<!-- ================= LOADER ================= -->
+<div id="loader">
+  <div class="pulse-ring"></div>
+  <p>Loading Stackly...</p>
+</div>
+
+
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+  <div class="logo-area">
+    <img src="Screenshot (7) (1) (1).webp" alt="Logo">
+  </div>
+
+  <ul class="nav-menu" id="navMenu">
+    <li class="dropdown">
+      <a href="#" class="dropdown-btn">Home ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="index.html">Home 1</a></li>
+        <li><a href="Home2.html">Home 2</a></li>
+      </ul>
+    </li>
+
+    <li><a href="trending.html">Trending</a></li>
+    <li><a href="orderpayment.html">Payments</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="signup1.html">Signin</a></li>
+    
+  </ul>
+
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+
+
+<!-- ================= BLOG CONTENT ================= -->
+<div class="blog-wrapper">
+
+  <div class="blog-header">
+    <span class="blog-category">Stackly · Social Media</span>
+
+    <h1 class="blog-title">How Stackly Social Is Redefining Modern Entertainment</h1>
+    <p class="blog-subtitle">Cinema, cricket, reels, news — everything in one feed.</p>
+
+    <div class="blog-meta">
+      <div class="meta-avatar"><img src="custmorsupport.webp"></div>
+      <div>📅 27 Nov 2025</div>
+      <div>⏱ 8 min read</div>
+      <div>👁 12.4K views</div>
+    </div>
+
+    <div class="blog-cover">
+      <img src="feed16.webp">
+    </div>
+  </div>
+
+  <div class="blog-content">
+    <p>Stackly brings reels, cinema, cricket moments and world news into one single dynamic feed…</p>
+
+    <div class="quote">
+      “Stackly is your personal entertainment dashboard — where everything you love comes together.”
+    </div>
+
+    <p>Users can publish reels, trending posts, and share stories with ease...</p>
+  </div>
+
+</div>
+
+<div class="blog-content">
+
+  <p>
+    In a world ruled by short-form content, instant entertainment, and real-time updates, 
+    <strong>Stackly Social</strong> has emerged as a new-age platform designed for the modern audience. 
+    Whether you're a cinema lover, cricket fan, meme explorer, or daily news reader, 
+    Stackly brings everything under one clean, powerful, and personalized interface.
+  </p>
+
+  <p>
+    Over the past few years, the digital ecosystem has shifted dramatically. Users consume content faster, 
+    creators publish more frequently, and brands compete for attention like never before. 
+    What makes Stackly different is its ability to merge all forms of entertainment into a 
+    unified, beautifully-crafted feed that adapts to user preferences.
+  </p>
+
+  <div class="quote">
+    “Stackly is not just another social media platform — it's your personal entertainment universe.”
+  </div>
+
+  <h2 style="margin-top:20px;font-size:20px;">📌 Why Stackly Stands Out</h2>
+  <p>
+    Traditional platforms separate content into different categories and apps — one for news, 
+    one for cricket scores, one for short videos, another for movies. Stackly removes these boundaries.
+  </p>
+
+  <ul style="margin:14px 0 20px 18px; line-height:1.8;">
+    <li>🎬 <strong>Cinema</strong> – Trailers, reviews, celebrity updates, and industry insights.</li>
+    <li>🏏 <strong>Cricket</strong> – Instant highlights, match moments, stats, and fan reactions.</li>
+    <li>🔥 <strong>Trending Reels</strong> – Fast, fun, creative clips tailored to your interests.</li>
+    <li>📰 <strong>Live News</strong> – Politics, world events, technology, and entertainment.</li>
+    <li>📸 <strong>Stories & Posts</strong> – Share your own moments with a click.</li>
+  </ul>
+
+  <h2 style="margin-top:20px;font-size:20px;">🚀 A New Experience for Creators</h2>
+  <p>
+    Content creators today need more than a space to post — they need a platform that pushes their content 
+    to the right audience. Stackly’s AI-powered discover engine ensures that every reel, photo, or post 
+    reaches the people who care about it.
+  </p>
+
+  <p>
+    Creators also get real-time analytics, improved visibility, and the ability to trend across categories 
+    like cinema, cricket, esports, lifestyle, or tech. This makes Stackly a dream platform for new and 
+    emerging creators.
+  </p>
+
+  <h2 style="margin-top:20px;font-size:20px;">📲 Designed for Speed, Style & Simplicity</h2>
+  <p>
+    Stackly was built with a focus on elegant UI, lightning performance, and smooth animations. 
+    Your feed loads instantly, videos play without lag, and every interaction feels fluid and modern. 
+    Whether viewing on desktop or mobile, Stackly gives a seamless, app-like experience.
+  </p>
+
+  <h2 style="margin-top:20px;font-size:20px;">💡 Smart Personalized Feed</h2>
+  <p>
+    Your Stackly feed adapts to your habits:
+  </p>
+
+  <ul style="margin:14px 0 20px 18px; line-height:1.8;">
+    <li>See more cinema if you watch more trailers.</li>
+    <li>Get live cricket clips during matches.</li>
+    <li>Receive tech or politics news based on your interest.</li>
+    <li>Trending reels appear first if you interact with creators.</li>
+  </ul>
+
+  <h2 style="margin-top:20px;font-size:20px;">🌍 A Community Built for Everyone</h2>
+  <p>
+    Stackly brings users, creators, brands, and communities together. Whether you’re sharing your daily life, 
+    exploring new hobbies, or catching up on global trends, Stackly gives you a space to express, engage, and enjoy.
+  </p>
+
+  <p>
+    The future of digital entertainment isn’t just about more content — it’s about meaningful, 
+    personalized experiences. And Stackly aims to redefine that future.
+  </p>
+
+  <div class="quote">
+    “No more switching apps — Stackly gives you cinema, cricket, reels, and news in ONE place.”
+  </div>
+
+  <h2 style="margin-top:20px;font-size:20px;">✨ Final Thoughts</h2>
+  <p>
+    Stackly Social is more than a platform — it’s a lifestyle upgrade.  
+    Built for speed, creativity, and limitless fun, Stackly is reimagining how modern users consume 
+    their daily dose of entertainment.
+  </p>
+
+  <p style="margin-top:12px;">
+    Stay tuned for new features including creator monetization, Stackly Stories+, advanced discover 
+    engine, and personalized content dashboards.
+  </p>
+
+  <p style="margin-top:15px;font-weight:600;font-size:17px;">
+    Welcome to the future of entertainment.  
+    Welcome to Stackly.
+  </p>
+
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-left">
+      <img src="Screenshot (7) (1) (1).webp" alt="Company Logo">
+      <p>Welcome to Stackly Social Media—where moments become memories and explore a warm community filled with creativity, positivity, and real stories..</p>
+
+      
+      <div class="social-icons">
+        <a href="4041.html"><img src="facebook.webp" alt="Facebook"></a>
+        <a href="4041.html"><img src="twitter-logo.webp" alt="Twitter"></a>
+        <a href="4041.html"><img src="linkedin.webp" alt="LinkedIn"></a>
+        <a href="4041.html"><img src="instagram.webp" alt="Instagram"></a>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="footer-links">
+      <h3>Quick Links</h3>
+      <a href="home2.html">Home</a>
+      <a href="trending.html">Trending</a>
+      <a href="orderpayment.html">Payments</a>
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="contact.html">Contact</a>
+      <a href="signup1.html">Signup</a>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="footer-contact">
+      <h3>Contact Us</h3>
+      <p>📍 Bengaluru, Karnataka</p>
+      <p>📞 +91 98765 43210</p>
+      <p>✉ support@stacklymedia.com</p>
+
+      <form action="4041.html" method="get" class="subscribe-box">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Join</button>
+      </form>
+    </div>
+
+  </div>
+
+  <p class="footer-bottom">© 2025 Stackly Social Media. All Rights Reserved.</p>
+</footer>
+
+  </div>
+
+  <p class="footer-bottom">© 2025 Stackly Social Media. All Rights Reserved.</p>
+</footer>
+
+
+
+<!-- ================= SCRIPT ================= -->
+<script>
+/* MOBILE MENU */
+const hamburger = document.getElementById("hamburger");
+const navMenu = document.getElementById("navMenu");
+
+hamburger.addEventListener("click", () => {
+  navMenu.classList.toggle("active");
+});
+
+/* DROPDOWN */
+document.querySelectorAll(".dropdown-btn").forEach(btn=>{
+  btn.addEventListener("click",function(e){
+    e.preventDefault();
+    this.parentElement.classList.toggle("open");
+  });
+});
+</script>
+
+</body>
+</html>

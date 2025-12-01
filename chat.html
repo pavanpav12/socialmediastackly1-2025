@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stackly Ticketing Tool</title>
+
+<style>
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+}
+
+body{
+  background:#f4f9ff;
+  padding-top:40px;  /* FIX: NAVBAR SPACE */
+  margin-top: 100px;
+}
+
+/* ================= LOADER ================= */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: indianred;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeOut 1.2s ease 1s forwards;
+}
+
+.loader-content {
+  text-align: center;
+  position: relative;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite ease-in-out;
+  z-index: 1;
+}
+
+#loader p {
+  color: white;
+  margin-top: 15px;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  animation: fadeText 3s infinite alternate;
+}
+
+/* ANIMATIONS */
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+  70% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.2; }
+  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+}
+
+@keyframes fadeText {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+
+/* ================= NAVBAR ANIMATED ================= */
+.navbar{
+  width:100%;
+  background: linear-gradient(90deg, #4b2cff, #885cff, #c56ffd);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:9999;
+  box-shadow:0 4px 25px rgba(0,0,0,0.25);
+
+  transform: translateY(-40px);
+  opacity:0;
+  animation: navbarDrop 0.8s ease forwards;
+}
+
+@keyframes navbarDrop {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* LOGO animation */
+.logo-area img{
+  height:50px;
+  width:auto;
+  opacity:0;
+  animation: logoFade 1s ease 0.4s forwards;
+}
+
+@keyframes logoFade {
+  from { transform: scale(0.6); opacity:0; }
+  to   { transform: scale(1); opacity:1; }
+}
+
+/* DESKTOP MENU */
+.nav-menu{
+  display:flex;
+  gap:25px;
+  list-style:none;
+}
+
+.nav-menu li a{
+  color:white;
+  text-decoration:none;
+  font-size:16px;
+  padding:8px 12px;
+  border-radius:8px;
+  transition:.3s;
+}
+
+/* GLOW HOVER */
+.nav-menu li a:hover{
+  background:#ffffff26;
+  box-shadow:0 0 10px #ffffff77;
+  transform: translateY(-3px);
+}
+
+/* DROPDOWN */
+.dropdown{
+  position:relative;
+}
+
+.dropdown-menu{
+  position:absolute;
+  top:42px;
+  left:0;
+  background:#0b2447;
+  width:160px;
+  border-radius:8px;
+  list-style:none;
+  padding:10px 0;
+  border:1px solid rgba(255,255,255,0.2);
+  display:none;
+  animation: dropFade .35s ease;
+}
+
+@keyframes dropFade {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.dropdown.open .dropdown-menu{
+  display:block;
+}
+
+/* HAMBURGER */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  opacity:0;
+  animation: fadeIn 1s ease 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity:1; }
+}
+
+.hamburger span{
+  width:28px;
+  height:3px;
+  background:white;
+  border-radius:4px;
+  transition:.3s;
+}
+
+/* MOBILE MENU */
+@media(max-width:768px){
+
+  .hamburger{
+    display:flex;
+  }
+
+  .nav-menu{
+    position:fixed;
+    top:70px;
+    right:-100%;
+    width:260px;
+    background:#0b2447;
+    height:calc(100vh - 70px);
+    flex-direction:column;
+    padding-top:15px;
+    padding-bottom:30px;
+    box-shadow:-4px 0 18px rgba(0,0,0,0.3);
+    transition:0.4s ease;
+  }
+
+  .nav-menu.active{
+    right:0;
+  }
+
+  .nav-menu li{
+    width:100%;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    opacity:0;
+    animation: slideIn 0.6s ease forwards;
+  }
+
+  @keyframes slideIn {
+    0% { transform:translateX(50px); opacity:0; }
+    100% { transform:translateX(0); opacity:1; }
+  }
+
+  .nav-menu li a{
+    display:block;
+    width:100%;
+    padding:15px 8px;
+    font-size:18px;
+  }
+
+  .dropdown-menu{
+    position:relative;
+    width:100%;
+    border-radius:0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== LOADER ===== -->
+<div id="loader">
+  <div class="loader-content">
+    <div class="pulse-ring"></div>
+    <p>Loading Stackly...</p>
+  </div>
+</div>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+
+  <div class="logo-area">
+    <img src="Screenshot (7) (1) (1).webp" alt="Logo">
+  </div>
+
+ <ul class="nav-menu" id="navMenu">
+
+  <li class="dropdown">
+    <a href="#" class="dropdown-btn">Home ▾</a>
+    <ul class="dropdown-menu">
+      <li><a href="index.html">Home 1</a></li>
+      <li><a href="Home2.html">Home 2</a></li>
+    </ul>
+  </li>
+
+  <li><a href="profile.html">Profile</a></li>
+  <li><a href="dashboard.html">Dashboard</a></li>
+  <li><a href="post.html">Post</a></li>
+  <li><a href="reels.html">Reels</a></li>
+  <li><a href="chat.html">Feed</a></li>
+ 
+<li><a href="signup.html">Signin</a></li>
+
+</ul>
+
+
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+
+</nav>
+
+<!-- ================= JS ================= -->
+<script>
+/* MOBILE MENU TOGGLE */
+const hamburger = document.getElementById("hamburger");
+const navMenu = document.getElementById("navMenu");
+
+hamburger.addEventListener("click", () => {
+  navMenu.classList.toggle("active");
+});
+
+/* DROPDOWNS OPEN */
+document.querySelectorAll(".dropdown-btn").forEach(btn => {
+  btn.addEventListener("click", function(e){
+    e.preventDefault();
+    this.parentElement.classList.toggle("open");
+  });
+});
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stackly Social – Top Stories, Posts & Reels</title>
+
+<style>
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top,#1d4ed8 0,#020617 55%,#000 100%);
+  color:#e5e7eb;
+  padding:20px 10px 40px;
+}
+
+/* PAGE WRAPPER */
+.feed-container{
+  max-width:1150px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* TITLE ROW (OPTIONAL) */
+.feed-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:6px 2px 4px;
+}
+.feed-header-left h1{
+  font-size:22px;
+  font-weight:700;
+}
+.feed-header-left p{
+  font-size:12px;
+  color:#9ca3af;
+}
+.feed-badge{
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(96,165,250,0.9);
+  color:#bfdbfe;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  background:linear-gradient(135deg,rgba(15,23,42,0.9),rgba(30,64,175,0.9));
+}
+
+/* ===================== TOP STORIES ===================== */
+.top-stories{
+  background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(15,23,42,0.85));
+  border-radius:20px;
+  padding:12px 12px 16px;
+  border:1px solid rgba(148,163,184,0.45);
+  box-shadow:0 18px 55px rgba(0,0,0,0.6);
+  position:relative;
+  overflow:hidden;
+}
+
+.top-stories::before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:radial-gradient(circle at 0% 0%,rgba(96,165,250,0.18),transparent 60%);
+  opacity:.9;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+
+.stories-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:8px;
+  position:relative;
+  z-index:1;
+}
+.stories-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.stories-title h2{
+  font-size:16px;
+}
+.stories-title span{
+  font-size:11px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(15,23,42,0.9);
+  border:1px solid rgba(148,163,184,0.5);
+}
+.stories-cta{
+  font-size:11px;
+  color:#bfdbfe;
+  opacity:.9;
+}
+
+/* STORIES SCROLLER */
+.stories-strip{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:6px;
+  scroll-snap-type:x mandatory;
+}
+.stories-strip::-webkit-scrollbar{
+  height:6px;
+}
+.stories-strip::-webkit-scrollbar-track{
+  background:transparent;
+}
+.stories-strip::-webkit-scrollbar-thumb{
+  background:rgba(148,163,184,0.8);
+  border-radius:999px;
+}
+
+/* STORY CARD */
+.story-card{
+  flex:0 0 120px;
+  height:190px;
+  border-radius:16px;
+  overflow:hidden;
+  position:relative;
+  scroll-snap-align:start;
+  background:#020617;
+  box-shadow:0 12px 30px rgba(15,23,42,0.85);
+  border:1px solid rgba(148,163,184,0.55);
+  cursor:pointer;
+  transform:translateY(4px);
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.story-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 18px 40px rgba(15,23,42,0.95);
+  border-color:#60a5fa;
+}
+
+.story-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  filter:brightness(.85);
+  transition:filter .25s ease;
+}
+.story-card:hover .story-bg{
+  filter:brightness(1);
+}
+
+.story-gradient{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.85) 0,rgba(0,0,0,0.05) 60%);
+}
+
+.story-avatar{
+  position:absolute;
+  top:8px;
+  left:8px;
+  height:34px;
+  width:34px;
+  border-radius:999px;
+  border:2px solid #22c55e;
+  overflow:hidden;
+  box-shadow:0 0 0 2px rgba(15,23,42,0.9);
+}
+.story-avatar img{
+  width:100%;height:100%;object-fit:cover;
+}
+
+.story-live{
+  position:absolute;
+  top:10px;
+  right:8px;
+  font-size:9px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:white;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+.story-text{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:8px;
+}
+.story-name{
+  font-size:12px;
+  font-weight:600;
+}
+.story-meta{
+  font-size:10px;
+  color:#cbd5f5;
+  opacity:.9;
+}
+
+/* ===================== MAIN FEED LAYOUT ===================== */
+.feed-grid{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns: minmax(0,2.1fr) minmax(0,1.4fr);
+  gap:16px;
+}
+
+/* SHARED CARD BASE */
+.card{
+  background:rgba(15,23,42,0.96);
+  border-radius:20px;
+  border:1px solid rgba(148,163,184,0.4);
+  padding:14px 14px 16px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.7);
+}
+
+/* ===================== POSTS COLUMN ===================== */
+.posts-header,
+.reels-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.posts-header h2,
+.reels-header h2{
+  font-size:15px;
+}
+.posts-header span,
+.reels-header span{
+  font-size:11px;
+  color:#9ca3af;
+}
+
+/* Post composer (fake) */
+.post-composer{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px 12px;
+  border-radius:16px;
+  background:rgba(15,23,42,0.9);
+  border:1px solid rgba(55,65,81,0.9);
+  margin-bottom:10px;
+}
+.post-composer-avatar{
+  height:34px;
+  width:34px;
+  border-radius:999px;
+  overflow:hidden;
+}
+.post-composer-avatar img{
+  width:100%;height:100%;object-fit:cover;
+}
+.post-composer-input{
+  flex:1;
+  padding:7px 11px;
+  border-radius:999px;
+  background:#020617;
+  border:1px solid rgba(75,85,99,0.9);
+  font-size:12px;
+  color:#9ca3af;
+}
+
+/* Post list */
+.post-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.post-card{
+  border-radius:16px;
+  background:rgba(15,23,42,1);
+  border:1px solid rgba(30,64,175,0.8);
+  padding:10px 10px 12px;
+  position:relative;
+  overflow:hidden;
+}
+.post-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+.post-user{
+  display:flex;
+  gap:8px;
+}
+.post-avatar{
+  height:34px;width:34px;border-radius:999px;overflow:hidden;
+}
+.post-avatar img{
+  width:100%;height:100%;object-fit:cover;
+}
+.post-user-meta{
+  display:flex;
+  flex-direction:column;
+}
+.post-name{
+  font-size:13px;
+  font-weight:600;
+}
+.post-time{
+  font-size:11px;
+  color:#9ca3af;
+}
+.post-privacy{
+  font-size:10px;
+  color:#9ca3af;
+}
+.post-menu{
+  font-size:18px;
+  cursor:pointer;
+  color:#9ca3af;
+}
+
+.post-text{
+  font-size:13px;
+  margin:8px 2px 10px;
+  color:#e5e7eb;
+}
+.post-media{
+  border-radius:14px;
+  overflow:hidden;
+  max-height:260px;
+}
+.post-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Post actions */
+.post-actions{
+  margin-top:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  color:#9ca3af;
+}
+.post-actions-left{
+  display:flex;
+  gap:12px;
+}
+.action-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:rgba(15,23,42,0.9);
+  border:1px solid rgba(55,65,81,0.9);
+  cursor:pointer;
+  transition:.2s;
+}
+.action-pill:hover{
+  border-color:#60a5fa;
+  color:#bfdbfe;
+}
+.action-dot{
+  width:6px;height:6px;border-radius:50%;background:#22c55e;
+}
+
+/* ===================== REELS COLUMN ===================== */
+.reels-column{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.reels-grid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Reel card */
+.reel-card{
+  display:grid;
+  grid-template-columns:90px minmax(0,1fr);
+  gap:10px;
+  border-radius:16px;
+  padding:8px;
+  background:rgba(15,23,42,1);
+  border:1px solid rgba(30,64,175,0.8);
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.reel-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 30px rgba(15,23,42,0.9);
+  border-color:#6366f1;
+}
+
+.reel-thumb{
+  position:relative;
+  border-radius:14px;
+  overflow:hidden;
+}
+.reel-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.reel-duration{
+  position:absolute;
+  right:6px;
+  bottom:5px;
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.7);
+}
+.reel-play{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  color:white;
+  text-shadow:0 0 8px rgba(0,0,0,0.9);
+  opacity:0;
+  transition:.2s;
+}
+.reel-card:hover .reel-play{
+  opacity:1;
+}
+
+.reel-info{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.reel-title{
+  font-size:13px;
+  font-weight:600;
+}
+.reel-meta{
+  font-size:11px;
+  color:#9ca3af;
+}
+.reel-stats{
+  font-size:11px;
+  color:#cbd5f5;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:900px){
+  .feed-container{
+    gap:12px;
+  }
+  .feed-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .feed-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:600px){
+  body{
+    padding:14px 8px 30px;
+  }
+  .top-stories{
+    padding:10px 10px 14px;
+  }
+  .stories-strip{
+    gap:8px;
+  }
+  .story-card{
+    flex:0 0 108px;
+    height:175px;
+  }
+  .card{
+    padding:10px 10px 13px;
+  }
+  .post-media{
+    max-height:220px;
+  }
+  .reel-card{
+    grid-template-columns:80px minmax(0,1fr);
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="feed-container">
+
+  <!-- HEADER -->
+  <div class="feed-header">
+    <div class="feed-header-left">
+      <h1>Stackly Feed</h1>
+      <p>Top stories, posts and reels – Facebook style layout.</p>
+    </div>
+    <span class="feed-badge">Stackly • <a href="404.html" Social</span></a>
+  </div>
+
+  <!-- ================= TOP STORIES ================= -->
+  <section class="top-stories">
+    <div class="stories-header">
+      <div class="stories-title">
+        <h2>Top Stories</h2>
+        <span>Today ·<a href="404.html"> For you</span></a>
+      </div>
+    <a href="404.html">   <div class="stories-cta">See all</div></a>
+    </div>
+
+    <div class="stories-strip">
+
+      <!-- STORY 1 -->
+      <article class="story-card">
+        <div class="story-bg" style="background-image:url('feed1.webp');"></div>
+        <div class="story-gradient"></div>
+
+        <div class="story-avatar">
+          <img src="hr6.webp" alt="">
+        </div>
+        <div class="story-live">Live</div>
+
+        <div class="story-text">
+          <div class="story-name">Alex Johnson</div>
+          <div class="story-meta">Coding late night 💻</div>
+        </div>
+      </article>
+
+      <!-- STORY 2 -->
+      <article class="story-card">
+        <div class="story-bg" style="background-image:url('Hr.webp');"></div>
+        <div class="story-gradient"></div>
+
+        <div class="story-avatar">
+          <img src="pavan1.webp" alt="">
+        </div>
+
+        <div class="story-text">
+          <div class="story-name">Emma Wilson</div>
+          <div class="story-meta">Sunset vibes 🌅</div>
+        </div>
+      </article>
+
+      <!-- STORY 3 -->
+      <article class="story-card">
+        <div class="story-bg" style="background-image:url('hr2.webp');"></div>
+        <div class="story-gradient"></div>
+
+        <div class="story-avatar">
+          <img src="pavan2.webp" alt="">
+        </div>
+
+        <div class="story-text">
+          <div class="story-name">David Kim</div>
+          <div class="story-meta">Night ride in the city 🏙</div>
+        </div>
+      </article>
+
+      <!-- STORY 4 -->
+      <article class="story-card">
+        <div class="story-bg" style="background-image:url('hr6.webp');"></div>
+        <div class="story-gradient"></div>
+
+        <div class="story-avatar">
+          <img src="pavan3.webp" alt="">
+        </div>
+
+        <div class="story-text">
+          <div class="story-name">Stackly Cricket</div>
+          <div class="story-meta">Match day highlights 🏏</div>
+        </div>
+      </article>
+
+      <!-- STORY 5 -->
+      <article class="story-card">
+        <div class="story-bg" style="background-image:url('hrwomen.webp');"></div>
+        <div class="story-gradient"></div>
+
+        <div class="story-avatar">
+          <img src="pavan4.webp" alt="">
+        </div>
+
+        <div class="story-text">
+          <div class="story-name">Cinema Buzz</div>
+          <div class="story-meta">Behind the scenes 🎬</div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= MAIN FEED: POSTS + REELS ================= -->
+  <section class="feed-grid">
+
+    <!-- POSTS COLUMN -->
+    <div class="card posts-column">
+      <div class="posts-header">
+        <h2>Posts</h2>
+        <span>Most recent ·<a href="404.html"> Friends</span></a>
+      </div>
+
+      <!-- Fake composer -->
+      <div class="post-composer">
+        <div class="post-composer-avatar">
+          <img src="pavan6.webp" alt="">
+        </div>
+    
+      </div>
+
+      <!-- Posts list -->
+      <div class="post-list">
+
+        <!-- POST 1 -->
+        <article class="post-card">
+          <div class="post-header">
+            <div class="post-user">
+              <div class="post-avatar">
+                <img src="post.9.webp" alt="">
+              </div>
+              <div class="post-user-meta">
+                <span class="post-name">Alex Johnson</span>
+                <span class="post-time">2h · <span class="post-privacy">Friends</span></span>
+              </div>
+            </div>
+          <a href="404.html">  <span class="post-menu">⋯</span></a>
+          </div>
+
+          <p class="post-text">
+            Just shipped a new feature on Stackly Ticketing Tool! 🚀  
+            Dark mode + smoother animations – feels so good.
+          </p>
+
+          <div class="post-media">
+            <img src="feed4.webp" alt="">
+          </div>
+
+          <div class="post-actions">
+            <div class="post-actions-left">
+              <div class="action-pill">
+                <span class="action-dot"></span>
+           <a href="404.html">     <span>124 Likes</span></a>
+              </div>
+              <div class="action-pill">
+          <a href="404.html">       💬 <span>32 Comments</span></a>
+              </div>
+            </div>
+         <a href="404.html"> <span>Share</span></a>
+          </div>
+        </article>
+
+        <!-- POST 2 -->
+        <article class="post-card">
+          <div class="post-header">
+            <div class="post-user">
+              <div class="post-avatar">
+                <img src="pavan3.webp" alt="">
+              </div>
+              <div class="post-user-meta">
+                <span class="post-name">Emma Wilson</span>
+                <span class="post-time">5h · <span class="post-privacy">Public</span></span>
+              </div>
+            </div>
+        <a href="404.html">    <span class="post-menu">⋯</span></a>
+          </div>
+
+          <p class="post-text">
+            UI polish day ✨  
+            Tried a new gradient for Stackly Social home screen. Which one do you like?
+          </p>
+
+          <div class="post-media">
+            <img src="pavan6.webp" alt="">
+          </div>
+
+          <div class="post-actions">
+            <div class="post-actions-left">
+              <div class="action-pill">
+                <span class="action-dot"></span>
+             <a href="404.html">    <span>89 Likes</span></a>
+              </div>
+              <div class="action-pill">
+           <a href="404.html">      💬 <span>14 Comments</span></a>
+              </div>
+            </div>
+          <a href="404.html">  <span>Save</span></a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- REELS COLUMN -->
+    <aside class="card reels-column">
+      <div class="reels-header">
+        <h2>Reels</h2>
+        <span>Trending · For you</span>
+      </div>
+
+      <div class="reels-grid">
+
+        <!-- Reel 1 -->
+        <article class="reel-card">
+          <div class="reel-thumb">
+            <img src="post15.webp" alt="">
+            <div class="reel-duration">0:26</div>
+          <a href="404.html">  <div class="reel-play">▶</div></a>
+          </div>
+          <div class="reel-info">
+            <div>
+              <div class="reel-title">Stackly Dev Setup</div>
+              <div class="reel-meta">@david.codes · 14K views</div>
+            </div>
+            <div class="reel-stats">⚡ Fast workflow tips</div>
+          </div>
+        </article>
+
+        <!-- Reel 2 -->
+        <article class="reel-card">
+          <div class="reel-thumb">
+            <img src="post17.webp" alt="">
+            <div class="reel-duration">0:19</div>
+          <a href="404.html">   <div class="reel-play">▶</div></a>
+          </div>
+          <div class="reel-info">
+            <div>
+              <div class="reel-title">UI Animations in 10s</div>
+              <div class="reel-meta">@sarah_ui · 22K views</div>
+            </div>
+            <div class="reel-stats">✨ Micro-interactions demo</div>
+          </div>
+        </article>
+
+        <!-- Reel 3 -->
+        <article class="reel-card">
+          <div class="reel-thumb">
+            <img src="post4.webp" alt="">
+            <div class="reel-duration">0:33</div>
+       <a href="404.html"><div class="reel-play">▶</div></a>
+          </div>
+          <div class="reel-info">
+            <div>
+              <div class="reel-title">Cricket Highlights</div>
+              <div class="reel-meta">@stackly_cricket · 40K views</div>
+            </div>
+            <div class="reel-stats">🏏 Last over thriller</div>
+          </div>
+        </article>
+
+      </div>
+    </aside>
+
+  </section>
+
+</div>
+
+</body>
+</html>
+
+</body>
+</html>
+<style>
+/* ================= FOOTER START ================= */
+
+footer{
+ background: linear-gradient(180deg, #1e1e3f, #342e6a, #4e2b8c);
+
+
+  color:#fff;
+  padding:70px 6%;
+  margin-top:80px;
+  position:relative;
+  overflow:hidden;
+  font-family:"Poppins",sans-serif;
+}
+
+/* Soft glow */
+footer::before{
+  content:"";
+  position:absolute;
+  top:-120px;
+  left:0;
+  width:120%;
+  height:220px;
+ 
+}
+
+
+/* GRID LAYOUT FIXED */
+.footer-container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:50px;
+  position:relative;
+  z-index:2;
+}
+
+/* LEFT */
+.footer-left img{
+  height:58px;
+  margin-bottom:12px;
+  object-fit:contain;
+}
+
+.footer-left p{
+  opacity:0.85;
+  margin:12px 0 18px;
+  line-height:1.6;
+  font-size:14px;
+  max-width:280px;
+}
+
+/* SOCIAL ICONS */
+.social-icons{
+  display:flex;
+  gap:14px;
+  margin-top:12px;
+}
+.social-icons a{
+  height:42px;width:42px;
+  border-radius:50%;
+  background:#ffffff20;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:.3s;
+}
+.social-icons a:hover{
+  background:#00eaff;
+  transform:translateY(-6px) scale(1.1);
+}
+.social-icons img{
+  height:20px;width:20px;
+}
+
+/* CENTER LINKS */
+.footer-links h3,
+.footer-contact h3{
+  margin-bottom:16px;
+  font-size:22px;
+  color:#00eaff;
+}
+
+.footer-links a{
+  display:block;
+  text-decoration:none;
+  color:#cbd5e1;
+  margin:6px 0;
+  font-size:15px;
+  transition:.3s;
+}
+.footer-links a:hover{
+  transform:translateX(6px);
+  color:#00eaff;
+}
+
+/* RIGHT CONTACT */
+.footer-contact p{
+  margin:6px 0;
+  opacity:.9;
+  font-size:15px;
+}
+
+/* SUBSCRIBE */
+.subscribe-box{
+  margin-top:16px;
+  display:flex;
+  width:100%;
+  max-width:320px;
+}
+.subscribe-box input{
+  flex:1;
+  padding:12px 14px;
+  background:#ffffff12;
+  border:none;
+  border-radius:6px 0 0 6px;
+  color:white;
+  outline:none;
+}
+.subscribe-box button{
+  padding:12px 20px;
+  background:#00eaff;
+  border:none;
+  color:#001;
+  font-weight:700;
+  border-radius:0 6px 6px 0;
+  cursor:pointer;
+}
+
+/* BOTTOM COPYRIGHT */
+.footer-bottom{
+  text-align:center;
+  margin-top:40px;
+  padding-top:18px;
+  border-top:1px solid #1e293b;
+  opacity:.8;
+  font-size:14px;
+}
+
+/* MOBILE VIEW FIX */
+/* MOBILE VIEW FIX */
+@media(max-width:900px){
+  
+  .footer-container{
+    grid-template-columns:1fr;
+    gap:45px;
+    text-align:center;
+  }
+
+  /* Left section */
+  .footer-left p{
+    margin:auto;
+  }
+
+  .social-icons{
+    justify-content:center;
+  }
+
+  /* QUICK LINKS */
+  .footer-links{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;   /* center block */
+  }
+
+  .footer-links h3{
+    text-align:center;
+    width:100%;
+  }
+
+  .footer-links a{
+    width:100%;
+    max-width:220px;      /* keeps good width */
+    text-align:start;     /* TEXT LEFT */
+    margin:4px 0;
+    padding-left:0;
+    margin-left: 130px;
+  }
+
+  /* Contact section */
+  .footer-contact{
+    text-align:center;
+  }
+
+  /* Subscribe input responsiveness */
+  .subscribe-box{
+    flex-direction:column;
+    max-width:none;
+  }
+  .subscribe-box input{
+    width:100%;
+    border-radius:6px;
+    margin-bottom:10px;
+  }
+  .subscribe-box button{
+    width:100%;
+    border-radius:6px;
+  }
+}
+
+</style>
+
+<footer>
+  <div class="footer-container">
+
+    <!-- LEFT -->
+    <div class="footer-left">
+      <img src="Screenshot (7) (1) (1).webp" alt="Company Logo">
+      <p>Welcome to Stackly Social Media—where moments become memories and explore a warm community filled with creativity, positivity, and real stories..</p>
+
+      
+      <div class="social-icons">
+        <a href="404.html"><img src="facebook.webp" alt="Facebook"></a>
+        <a href="404.html"><img src="twitter-logo.webp" alt="Twitter"></a>
+        <a href="404.html"><img src="linkedin.webp" alt="LinkedIn"></a>
+        <a href="404.html"><img src="instagram.webp" alt="Instagram"></a>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="footer-links">
+      <h3>Quick Links</h3>
+      <a href="index.html">Home</a>
+      <a href="profile.html">Profile</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="post.html">Post</a>
+      <a href="reels.html">Reels</a>
+      <a href="chat.html">Feed</a>
+      <a href="signup.html">Signup</a>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="footer-contact">
+      <h3>Contact Us</h3>
+      <p>📍 Bengaluru, Karnataka</p>
+      <p>📞 +91 98765 43210</p>
+      <p>✉ support@stacklymedia.com</p>
+
+      <form action="404.html" method="get" class="subscribe-box">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Join</button>
+      </form>
+    </div>
+
+  </div>
+
+  <p class="footer-bottom">© 2025 Stackly Social Media. All Rights Reserved.</p>
+</footer>
+
+<!-- ================= FOOTER END ================= -->

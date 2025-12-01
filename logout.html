@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logout • Stackly Social</title>
+
+<style>
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle at top,#5b2bff 0%,#050816 60%);
+  overflow:hidden;
+}
+
+/* BACKGROUND GLOW ELEMENTS */
+.glow{
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  filter:blur(70px);
+  opacity:0.55;
+  animation: float 6s ease-in-out infinite alternate;
+}
+.glow1{ top:10%; left:12%; background:#ec4899; }
+.glow2{ bottom:8%; right:12%; background:#4f46e5; animation-duration:7s; }
+
+@keyframes float {
+  from { transform:translateY(0); }
+  to   { transform:translateY(-40px); }
+}
+
+/* LOGOUT BOX */
+.logout-box{
+  width:100%;
+  max-width:430px;
+  background:rgba(255,255,255,0.08);
+  padding:35px 30px;
+  border-radius:24px;
+  backdrop-filter:blur(25px);
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 25px 80px rgba(0,0,0,0.55);
+  text-align:center;
+  animation: pop 0.7s ease forwards;
+}
+@keyframes pop{
+  from{ transform:scale(.85); opacity:0; }
+  to  { transform:scale(1); opacity:1; }
+}
+
+/* ICON */
+.icon{
+  font-size:65px;
+  color:#f43f5e;
+  margin-bottom:16px;
+  animation: pulse 1.3s infinite ease-in-out;
+}
+@keyframes pulse{
+  0%{ transform:scale(1); opacity:0.9; }
+  100%{ transform:scale(1.15); opacity:1; }
+}
+
+/* TEXT */
+.logout-box h2{
+  color:white;
+  font-size:26px;
+  font-weight:700;
+}
+.logout-box p{
+  color:#cbd5e1;
+  margin-top:8px;
+  font-size:14px;
+}
+
+/* BUTTONS */
+.btns{
+  margin-top:28px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.logout-btn{
+  padding:13px 0;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f43f5e,#ec4899);
+  color:white;
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+  font-size:15px;
+  transition:.3s;
+}
+.logout-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 35px rgba(244,63,94,0.5);
+}
+
+.cancel-btn{
+  padding:13px 0;
+  border-radius:12px;
+  background:rgba(255,255,255,0.12);
+  color:#e2e8f0;
+  border:1px solid rgba(255,255,255,0.18);
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+  transition:.3s;
+}
+.cancel-btn:hover{
+  background:rgba(255,255,255,0.2);
+  transform:translateY(-2px);
+}
+
+/* MOBILE */
+@media(max-width:450px){
+  .logout-box{ padding:28px 22px; }
+  .logout-box h2{ font-size:22px; }
+}
+</style>
+</head>
+
+<body>
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<div class="logout-box">
+  <div class="icon">⚠️</div>
+  <h2>Are you sure you want to logout?</h2>
+  <p>You will be signed out from your Stackly Social account.</p>
+
+  <div class="btns">
+
+    <!-- LOGOUT BUTTON → GO TO 404 -->
+    <button class="logout-btn" onclick="window.location.href='404.html'">
+      Logout
+    </button>
+
+    
+
+    <!-- BACK TO HOME BUTTON -->
+    <button class="cancel-btn" onclick="window.location.href='index.html'">
+      Back to Home
+    </button>
+
+  </div>
+</div>
+
+
+</body>
+</html>
